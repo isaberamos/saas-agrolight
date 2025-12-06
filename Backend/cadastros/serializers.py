@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import (
+    APagar,
+    AReceber,
     Cliente,
     Fornecedor,
     Propriedade,
     PlanoDeContas,
-    ContaPagar,
-    ContaReceber
+    APagar,
+    AReceber
 )
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -27,48 +29,46 @@ class PropriedadeSerializer(serializers.ModelSerializer):
         read_only_fields = ['idpropriedade']
 
 class PlanoDeContasSerializer(serializers.ModelSerializer):
+    """
+    Usa diretamente as colunas da tabela plano_de_contas:
+    - idplanocontas (PK)
+    - conta         (código: 1, 1.1, 1.1.1.1...)
+    - descricao
+    - tipofluxocaixa (vamos usar 1 = Débito, 2 = Crédito)
+    """
+
     class Meta:
         model = PlanoDeContas
-        fields = ['idplanocontas', 'descricao', 'tipofluxocaixa', 'conta']
-        read_only_fields = ['idplanocontas']
-
-class ContaPagarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContaPagar
         fields = [
-            'id',
+            'idplanocontas',
+            'conta',
             'descricao',
-            'valor_parcela',
-            'parcelas',
-            'total',
-            'vencimento',
-            'quitacao',
-            'status',
-            'juros',
-            'desconto',
-            'fornecedor',
-            'propriedade',
-            'plano_contas'
+            'tipofluxocaixa',
         ]
-        read_only_fields = ['id']
 
-class ContaReceberSerializer(serializers.ModelSerializer):
+    def validate_conta(self, value):
+        if not value:
+            raise serializers.ValidationError("O código da conta é obrigatório.")
+        return value
+
+class APagarSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ContaReceber
+        model = APagar
         fields = [
-            'id',
+            'idcontapagar',
             'descricao',
-            'valor_parcela',
-            'parcelas',
-            'total',
-            'vencimento',
-            'quitacao',
-            'status',
-            'juros',
-            'desconto',
-            'cliente',
-            'propriedade',
-            'plano_contas'
+            'valorparcela',
+            'numeroparcela',
+            'datavencimento',
+            'dataquitacao',
+            'valordesconto',
+            'valorjuros',
+            'idpropriedade',
+            'idfornecedor',
+            'idplanocontas',
         ]
-        read_only_fields = ['id']
 
+class AReceberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AReceber
+        fields = '__all__'

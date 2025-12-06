@@ -37,26 +37,37 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  .tree-node {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding-right: 8px;
-  }
-  
-  .tree-node button {
-    background-color: #6ba877;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .tree-node button:hover {
-    background-color: #5b9465;
-  }
-  
-  
+ .tree-node {
+  display: inline-flex;     /* fica do tamanho do conteúdo */
+  align-items: center;
+  gap: 15px;                 /* espaço entre o texto e o botão */
+  padding-right: 0;         /* não precisa mais */
+}
+
+.tree-node button {
+  background-color: #004f10;
+  color: #fff;
+  border: none;
+  padding: 2px 4px;
+  font-size: 8px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.tree-node button:hover {
+  background-color: #5b9465;
+}
+.tree-wrapper .MuiTreeItem-label {
+  display: inline-flex;
+  align-items: center;
+}
+.tree-wrapper .MuiTreeItem-content {
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.tree-wrapper .MuiTreeItem-content.Mui-focused,
+.tree-wrapper .MuiTreeItem-content.Mui-selected {
+  background: #f3f4f6;
+}
+.tree-wrapper details { margin: 2px 0; }
+.tree-wrapper summary::-webkit-details-marker { display: none; }

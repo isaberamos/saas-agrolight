@@ -22,7 +22,7 @@ from rest_framework.response import Response
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [permissions.AllowAny]  # Pode ajustar para IsAuthenticated se quiser proteger
+    permission_classes = [permissions.IsAuthenticated]  
 
     @action(detail=True, methods=['put'])
     def inativar(self, request, pk=None):
@@ -81,7 +81,7 @@ def login_view(request):
 
             if user is not None:
                 auth_login(request, user)
-                return redirect('index')  # Ajuste para a sua url inicial
+                return redirect('index')  # Ajuste para a url inicial
 
         return redirect('login_view')
 

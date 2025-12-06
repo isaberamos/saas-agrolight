@@ -1,20 +1,29 @@
+from requests import Response
 from rest_framework import viewsets, permissions
 from .models import (
+    APagar,
+    AReceber,
     Cliente,
     Fornecedor,
     Propriedade,
     PlanoDeContas,
-    ContaPagar,
-    ContaReceber
+    APagar,
+    AReceber
 )
 from .serializers import (
     ClienteSerializer,
     FornecedorSerializer,
     PropriedadeSerializer,
     PlanoDeContasSerializer,
-    ContaPagarSerializer,
-    ContaReceberSerializer,
+    APagarSerializer,
+    AReceberSerializer,
 )
+
+from rest_framework.views import APIView
+from django.db.models import F, Sum, Count, FloatField
+from django.db.models.functions import TruncMonth
+from rest_framework import viewsets, permissions
+from django.db.models import Q
 
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all().order_by('nome')
@@ -32,22 +41,74 @@ class PropriedadeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 class PlanoDeContasViewSet(viewsets.ModelViewSet):
-    queryset = PlanoDeContas.objects.all()
+    queryset = PlanoDeContas.objects.all().order_by('conta')
     serializer_class = PlanoDeContasSerializer
-    permission_classes = [permissions.AllowAny]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
-    def get_queryset(self):
-        modelo = self.request.query_params.get('modelo')
-        if modelo and modelo.isdigit():
-            return self.queryset.filter(tipofluxocaixa=int(modelo)).order_by('conta')
-        return self.queryset.order_by('conta')
 
-class ContaPagarViewSet(viewsets.ModelViewSet):
-    queryset = ContaPagar.objects.all()
-    serializer_class = ContaPagarSerializer
-    permission_classes = [permissions.AllowAny]
+class APagarViewSet(viewsets.ModelViewSet):
+    queryset = APagar.objects.all().order_by('datavencimento', 'idcontapagar')
+    serializer_class = APagarSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
-class ContaReceberViewSet(viewsets.ModelViewSet):
-    queryset = ContaReceber.objects.all()
-    serializer_class = ContaReceberSerializer
-    permission_classes = [permissions.AllowAny]
+
+class AReceberViewSet(viewsets.ModelViewSet):
+    queryset = AReceber.objects.all().order_by('datavencimento', 'descricao')
+    serializer_class = AReceberSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
+
+class ContasResumoMensalView(APIView):
+    """
+    GET /api/contas-resumo/pagar/
+    GET /api/contas-resumo/receber/
+
+    Retorna, por mês (datavencimento):
+    [
+    { "mes": "2026-01", "label": "Jan/2026", "qtd": 5, "total": 1234.56 },
+    ]
+    """
+
+    def get(self, request, tipo):
+        if tipo not in ("pagar", "receber"):
+            return Response({"detail": "tipo inválido"}, status=400)
+
+        if tipo == "pagar":
+            model = APagar
+            pk_field = "idcontapagar"
+        else:
+            model = AReceber
+            pk_field = "idconta"
+
+        qs = (
+            model.objects
+            .exclude(datavencimento__isnull=True)
+            .annotate(
+                mes_trunc=TruncMonth("datavencimento"),
+                valor_base=F("valorparcela") + F("valorjuros") - F("valordesconto"),
+                total_registro=F("valor_base") * F("numeroparcela"),
+            )
+        )
+
+        agg = (
+            qs.values("mes_trunc")
+            .annotate(
+                qtd=Count(pk_field),
+                total=Sum("total_registro", output_field=FloatField()),
+            )
+            .order_by("mes_trunc")
+        )
+
+        data = []
+        for row in agg:
+            mes = row["mes_trunc"]
+            if mes is None:
+                continue
+
+            data.append({
+                "mes": mes.strftime("%Y-%m"),
+                "label": mes.strftime("%b/%Y").capitalize(),
+                "qtd": row["qtd"],
+                "total": float(row["total"] or 0),
+            })
+
+        return Response(data)

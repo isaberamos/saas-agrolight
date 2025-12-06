@@ -1,72 +1,125 @@
-.contas-resumo-container {
-  padding: 30px;
-  flex: 1;
-  background: #fff;
-}
-
-.header-resumo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.aba-toggle button {
-  padding: 10px 16px;
-  margin-left: 10px;
-  border: 1px solid #ccc;
-  background: #eee;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.aba-toggle .ativo {
-  background-color: #6ba877;
-  color: white;
-  font-weight: bold;
-}
-
-.cards-resumo {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.card {
-  flex: 1;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-.listagem-resumo {
-  background: #fdfdfd;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-table {
+.contas-resumo-container{
+  /* centraliza e limita largura do conteúdo */
   width: 100%;
-  border-collapse: collapse;
-}
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
 
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ccc;
-}
-.graficos-resumo {
   display: flex;
-  gap: 30px;
-  margin-top: 40px;
+  flex-direction: column;
+  gap: 20px;
+  background: #fff;
 }
 
-.grafico-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 20px;
-  flex: 1;
+/* ===== Header + abas ===== */
+.header-resumo{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+}
+.aba-toggle{ display:flex; gap:8px; }
+.aba-toggle button{
+  padding:10px 14px;
+  border:1px solid #dfe3e6;
+  background:#f4f6f8;
+  border-radius:8px;
+  cursor:pointer;
+}
+.aba-toggle .ativo{
+  background:#6ba877;
+  border-color:#6ba877;
+  color:#fff;
+  font-weight:700;
+}
+
+/* ===== Cards de KPI ===== */
+.cards-resumo{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+.card{
+  grid-column: span 6; /* dois cards lado a lado no desktop */
+  background:#fff;
+  border:1px solid #f0f2f4;
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 1px 4px rgba(16,24,40,.04);
+}
+.card p{ margin:0; color:#667085; font-size:14px; }
+.card h3{ margin:6px 0 0; font-size:22px; font-weight:800; }
+
+/* ===== Grades de gráficos ===== */
+.graficos-resumo{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+.grafico-card{
+  grid-column: span 6; /* 2 colunas */
+  background:#fff;
+  border:1px solid #f0f2f4;
+  border-radius:12px;
+  padding:16px;
+  overflow:hidden;
+  min-height: 260px; /* altura confortável no desktop */
+}
+.grafico-card h3{ margin:2px 0 10px; }
+
+/* torna o canvas realmente fluido */
+.grafico-card canvas{
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio: 16 / 9;      /* controla a altura sem ficar gigante */
+}
+
+/* ===== Tabela ===== */
+.listagem-resumo{
+  background:#fff;
+  border:1px solid #f0f2f4;
+  border-radius:12px;
+  box-shadow:0 1px 4px rgba(16,24,40,.04);
+  padding:0;
+  overflow:hidden;
+}
+.listagem-resumo h3{
+  margin:0;
+  padding:16px;
+}
+.listagem-resumo .table-wrap{
+  width:100%;
+  overflow-x:auto;           /* rola só a tabela no celular */
+}
+.listagem-resumo table{
+  width:100%;
+  border-collapse:collapse;
+  min-width: 720px;          /* evita “amassar” colunas estreitas */
+}
+.listagem-resumo th, .listagem-resumo td{
+  padding:12px 14px;
+  text-align:left;
+  border-top:1px solid #eef1f3;
+}
+.listagem-resumo th{
+  font-size:13px;
+  color:#667085;
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 1200px){
+  .grafico-card{ min-height: 220px; }
+}
+
+@media (max-width: 992px){
+  .card, .grafico-card{ grid-column: 1 / -1; } /* empilha */
+  .grafico-card{ min-height: 200px; }
+}
+
+@media (max-width: 640px){
+  .contas-resumo-container{ padding:16px; }
+  .card h3{ font-size:20px; }
+  .grafico-card{ min-height: 180px; padding:12px; }
+  .aba-toggle button{ padding:8px 12px; }
 }

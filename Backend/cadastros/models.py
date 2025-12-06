@@ -60,33 +60,84 @@ class PlanoDeContas(models.Model):
         managed  = False
         db_table = 'plano_de_contas'
 
-class ContaPagar(models.Model):
-    id = models.AutoField(primary_key=True)
-    descricao = models.CharField(max_length=100)
-    valor_parcela = models.DecimalField(max_digits=10, decimal_places=2)
-    parcelas = models.IntegerField()
-    total = models.DecimalField(max_digits=12, decimal_places=2)
-    vencimento = models.DateField()
-    quitacao = models.DateField(blank=True, null=True)
-    status = models.CharField(max_length=20, default='Ativa')
-    juros = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    desconto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    fornecedor = models.CharField(max_length=100)
-    propriedade = models.CharField(max_length=100)
-    plano_contas = models.CharField(max_length=100)
+class APagar(models.Model):
+    idcontapagar = models.AutoField(primary_key=True)
+    descricao = models.CharField(max_length=30)
+    valorparcela = models.DecimalField(max_digits=15, decimal_places=2)
+    numeroparcela = models.IntegerField()
+    datavencimento = models.DateField()
+    dataquitacao = models.DateField(null=True, blank=True)
+    valordesconto = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    valorjuros = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+    # relacionamentos – repara nas ASPAS
+    idpropriedade = models.ForeignKey(
+        'Propriedade',
+        on_delete=models.PROTECT,
+        db_column='idpropriedade',
+        null=True,
+        blank=True,
+        related_name='contas_pagar',
+    )
+    idfornecedor = models.ForeignKey(
+        'Fornecedor',
+        on_delete=models.PROTECT,
+        db_column='idfornecedor',
+        null=True,
+        blank=True,
+        related_name='contas_pagar',
+    )
+    idplanocontas = models.ForeignKey(
+        'PlanoDeContas',
+        on_delete=models.PROTECT,
+        db_column='idplanocontas',
+        null=True,
+        blank=True,
+        related_name='contas_pagar',
+    )
+
+    class Meta:
+        managed = False      
+        db_table = 'a_pagar'
 
 
-class ContaReceber(models.Model):
-    id = models.AutoField(primary_key=True)
-    descricao = models.CharField(max_length=100)
-    valor_parcela = models.DecimalField(max_digits=10, decimal_places=2)
-    parcelas = models.IntegerField()
-    total = models.DecimalField(max_digits=12, decimal_places=2)
-    vencimento = models.DateField()
-    quitacao = models.DateField(blank=True, null=True)
-    status = models.CharField(max_length=20, default='Ativa')
-    juros = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    desconto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    cliente = models.CharField(max_length=100)
-    propriedade = models.CharField(max_length=100)
-    plano_contas = models.CharField(max_length=100)
+class AReceber(models.Model):
+    idconta = models.AutoField(primary_key=True)
+    descricao = models.CharField(max_length=30)
+    valorparcela = models.DecimalField(max_digits=15, decimal_places=2)
+    numeroparcela = models.IntegerField()
+    datavencimento = models.DateField()
+    dataquitacao = models.DateField(null=True, blank=True)
+    valordesconto = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    valorjuros = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+    idpropriedade = models.ForeignKey(
+        'Propriedade',
+        on_delete=models.PROTECT,
+        db_column='idpropriedade',
+        null=True,
+        blank=True,
+        related_name='contas_receber',
+    )
+    idcliente = models.ForeignKey(
+        'Cliente',
+        on_delete=models.PROTECT,
+        db_column='idcliente',
+        null=True,
+        blank=True,
+        related_name='contas_receber',
+    )
+    idplanocontas = models.ForeignKey(
+        'PlanoDeContas',
+        on_delete=models.PROTECT,
+        db_column='idplanocontas',
+        null=True,
+        blank=True,
+        related_name='contas_receber',
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'a_receber'
+        
+        

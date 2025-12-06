@@ -1,58 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContaForm from '../components/ContaForm';
 import { toast } from 'react-toastify';
 import './ContasPage.css';
+
+import api, { parseApiError } from '../services/api';
+
+function fmtMoney(n) {
+  return `R$ ${Number(n || 0).toFixed(2)}`;
+}
 
 function ContasPagarPage() {
   const [contas, setContas] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [contaSelecionada, setContaSelecionada] = useState(null);
 
-  // Carrega contas do backend
-  useEffect(() => {
-    fetch('/api/contas-pagar/')
-      .then(res => res.json())
-      .then(data => setContas(data))
-      .catch(() => toast.error('Erro ao carregar contas'));
-  }, []);
-
-  const handleSalvarConta = (nova) => {
-    const metodo = nova.id ? 'PUT' : 'POST';
-    const url = nova.id ? `/api/contas-pagar/${nova.id}/` : '/api/contas-pagar/';
-
-    fetch(url, {
-      method: metodo,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(nova),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (nova.id) {
-          setContas(contas.map(c => (c.id === data.id ? data : c)));
-          toast.success('Conta atualizada!');
-        } else {
-          setContas([...contas, data]);
-          toast.success('Conta criada!');
-        }
-      })
-      .catch(() => toast.error('Erro ao salvar conta'));
+  const carregarContas = async () => {
+    try {
+      const { data } = await api.get('contas-pagar/');
+      setContas(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Erro ao carregar contas a pagar:', err);
+      toast.error(`Erro ao carregar contas a pagar: ${parseApiError(err)}`);
+      setContas([]);
+    }
   };
 
-  const handleInativar = (id) => {
-    setContas((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'Inativa' } : c))
-    );
+  useEffect(() => {
+    carregarContas();
+  }, []);
 
-    fetch(`/api/contas-pagar/${id}/`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Inativa' }),
-    });
-    
-    toast.success('Conta inativada!');
+  const handleSalvarConta = async (payload) => {
+    try {
+      const id = payload.id || payload.idcontapagar || contaSelecionada?.idcontapagar || contaSelecionada?.id;
+      const isEdicao = Boolean(id);
+
+      const url = isEdicao
+        ? `contas-pagar/${id}/`
+        : 'contas-pagar/';
+
+      const method = isEdicao ? 'put' : 'post';
+
+      const { data } = await api[method](url, payload);
+
+      if (isEdicao) {
+        setContas((prev) =>
+          prev.map((c) =>
+            (c.idcontapagar ?? c.id) === (data.idcontapagar ?? data.id)
+              ? data
+              : c,
+          ),
+        );
+        toast.success('Conta atualizada!');
+      } else {
+        setContas((prev) => [...prev, data]);
+        toast.success('Conta criada!');
+      }
+
+      setMostrarForm(false);
+      setContaSelecionada(null);
+    } catch (err) {
+      console.error('Erro ao salvar conta a pagar:', err);
+      toast.error(parseApiError(err) || 'Erro ao salvar conta');
+    }
+  };
+
+  const handleDeletar = async (conta) => {
+    const id = conta.idcontapagar ?? conta.id;
+    if (!id) return;
+
+    const confirma = window.confirm(
+      'Tem certeza que deseja excluir esta conta a pagar?',
+    );
+    if (!confirma) return;
+
+    try {
+      await api.delete(`contas-pagar/${id}/`);
+      setContas((prev) =>
+        prev.filter((c) => (c.idcontapagar ?? c.id) !== id),
+      );
+      toast.success('Conta deletada!');
+    } catch (err) {
+      console.error('Erro ao deletar conta a pagar:', err);
+      toast.error(parseApiError(err) || 'Erro ao deletar conta');
+    }
   };
 
   return (
@@ -61,10 +92,13 @@ function ContasPagarPage() {
       <div className="supplier-list">
         <div className="list-header">
           <h3>Lista de contas a pagar</h3>
-          <button className="add-button" onClick={() => {
-            setContaSelecionada(null);
-            setMostrarForm(true);
-          }}>
+          <button
+            className="add-button"
+            onClick={() => {
+              setContaSelecionada(null);
+              setMostrarForm(true);
+            }}
+          >
             + Nova conta
           </button>
         </div>
@@ -75,46 +109,66 @@ function ContasPagarPage() {
               <th>Descrição</th>
               <th>Valor da parcela</th>
               <th>Nº de parcelas</th>
-              <th>Total</th>
+              <th>Total (calculado)</th>
               <th>Data venc.</th>
               <th>Data quitação</th>
-              <th>Status</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {contas.map((conta) => (
-              <tr key={conta.id}>
-                <td>{conta.descricao}</td>
-                <td>R$ {conta.valor_parcela?.toFixed(2)}</td>
-                <td>{conta.parcelas}</td>
-                <td>R$ {conta.total?.toFixed(2)}</td>
-                <td>{conta.vencimento}</td>
-                <td>{conta.quitacao || '-'}</td>
-                <td style={{ color: conta.status === 'Inativa' ? '#999' : '#333' }}>
-                  {conta.status}
-                </td>
-                <td>
-                  <button
-                    className="acao"
-                    onClick={() => {
-                      setContaSelecionada(conta);
-                      setMostrarForm(true);
-                    }}
-                    disabled={conta.status === 'Inativa'}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="acao danger"
-                    onClick={() => handleInativar(conta.id)}
-                    disabled={conta.status === 'Inativa'}
-                  >
-                    Deletar
-                  </button>
+            {contas.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ color: '#6b7280' }}>
+                  Nenhuma conta cadastrada.
                 </td>
               </tr>
-            ))}
+            ) : (
+              contas.map((conta) => {
+                const valor = Number(
+                  conta.valorparcela ?? conta.valorParcela ?? 0,
+                );
+                const juros = Number(
+                  conta.valorjuros ?? conta.juros ?? 0,
+                );
+                const desconto = Number(
+                  conta.valordesconto ?? conta.desconto ?? 0,
+                );
+                const parcelas = Number(
+                  conta.numeroparcela ?? conta.parcelas ?? 1,
+                );
+                const totalCalc = (valor + juros - desconto) * parcelas;
+
+                const idRow = conta.idcontapagar ?? conta.id;
+
+                return (
+                  <tr key={idRow}>
+                    <td>{conta.descricao}</td>
+                    <td>{fmtMoney(valor)}</td>
+                    <td>{parcelas}</td>
+                    <td>{fmtMoney(totalCalc)}</td>
+                    <td>{conta.datavencimento ?? conta.vencimento ?? '-'}</td>
+                    <td>{conta.dataquitacao ?? conta.quitacao ?? '-'}</td>
+                    <td>
+                      <button
+                        className="acao"
+                        onClick={() => {
+                          setContaSelecionada(conta);
+                          setMostrarForm(true);
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="acao danger"
+                        onClick={() => handleDeletar(conta)}
+                      >
+                        Deletar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -123,15 +177,17 @@ function ContasPagarPage() {
         <div className="form-sidebar">
           <div className="form-header">
             <h3>{contaSelecionada ? 'Editar conta' : 'Nova conta'}</h3>
-            <button className="fechar" onClick={() => setMostrarForm(false)}>×</button>
+            <button
+              className="fechar"
+              onClick={() => setMostrarForm(false)}
+            >
+              ×
+            </button>
           </div>
           <ContaForm
             conta={contaSelecionada}
             tipoConta="pagar"
-            onSave={(nova) => {
-              handleSalvarConta(nova);
-              setMostrarForm(false);
-            }}
+            onSave={handleSalvarConta}
           />
         </div>
       )}
