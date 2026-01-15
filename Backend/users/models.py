@@ -11,7 +11,6 @@ class Usuario(AbstractUser):
     cidade = models.CharField(max_length=255, null=True, blank=True)
     estado = models.CharField(max_length=2, null=True, blank=True)
     tipousuario = models.CharField(max_length=50, null=True, blank=True)
-    telefone = models.CharField(max_length=20, null=True, blank=True)
 
     class Meta:
         db_table = "auth_user"  # Mapeia para a tabela já existente
