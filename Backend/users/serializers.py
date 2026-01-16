@@ -1,4 +1,3 @@
-# users/api/serializers.py
 from rest_framework import serializers
 from users.models import Usuario
 from users.use_cases.create_user import CreateUserUseCase
