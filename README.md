@@ -181,11 +181,3 @@ export const getWeatherByCity = async (cidade) => {
 Distribuído sob a licença MIT. Veja o arquivo `LICENSE` para detalhes.
 
 ---
-
-## 👩‍💻 Desenvolvedoras
-
-- **Isabella Ramos** – [LinkedIn](https://www.linkedin.com/in/isabellacramos) | [GitHub](https://github.com/isaberamos)  
-- **Fernanda Ennes** – [LinkedIn](https://www.linkedin.com/in/fernandaennes/) | [GitHub](https://github.com/FerEnnes)
-
----
-
