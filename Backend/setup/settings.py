@@ -34,6 +34,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'cadastros.apps.CadastrosConfig',
+    'financeiro.apps.FinanceiroConfig',
     'rest_framework',
     "corsheaders",
     'django_extensions',

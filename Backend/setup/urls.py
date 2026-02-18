@@ -1,14 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
-from cadastros.views import ContasResumoMensalView
 from setup import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from financeiro.views import ContasResumoMensalView
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
-
 
     # Usuários (templates e views HTML)
     path('', include('users.urls')),
@@ -19,12 +18,13 @@ urlpatterns = [
     # API Cadastros (Clientes, Fornecedores, Plano de Contas etc.)
     path('api/', include('cadastros.urls')),
     
+    path('api/', include('financeiro.urls')),
 
     # JWT Auth
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # endpoint extra de resumo
+    # Endpoint extra de resumo
     path(
         'api/contas-resumo/<str:tipo>/',
         ContasResumoMensalView.as_view(),
