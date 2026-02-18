@@ -9,7 +9,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'id', 'username', 'first_name', 'last_name', 'email',
-            'cpf', 'telefone', 'logradouro', 'numero', 'complemento', 'bairro',
+            'cpf', 'logradouro', 'numero', 'complemento', 'bairro',
             'cidade', 'estado', 'cep', 'tipousuario', 'password', 'is_active'
         ]
         extra_kwargs = {

@@ -12,13 +12,14 @@ api.interceptors.request.use(
       localStorage.getItem('token') || sessionStorage.getItem('token');
 
     if (token) {
-      config.headers.Authorization = `Token ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
   },
   (error) => Promise.reject(error),
 );
+
 
 export async function getClientes() {
   const response = await api.get('clientes/');
