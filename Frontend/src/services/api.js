@@ -20,12 +20,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-
-export async function getClientes() {
-  const response = await api.get('clientes/');
-  return response.data;
-}
-
 export function parseApiError(err) {
   if (err.response) {
     const msg =
