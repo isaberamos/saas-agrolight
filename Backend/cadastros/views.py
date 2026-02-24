@@ -11,17 +11,17 @@ from .serializers import (
     PropriedadeSerializer
 )
 
-class ClienteViewSet(viewsets.ModelViewSet):
+class BaseCadastroViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    
+class ClienteViewSet(BaseCadastroViewSet):
     queryset = Cliente.objects.all().order_by('nome')
     serializer_class = ClienteSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-class FornecedorViewSet(viewsets.ModelViewSet):
+class FornecedorViewSet(BaseCadastroViewSet):
     queryset = Fornecedor.objects.all().order_by('nome')
     serializer_class = FornecedorSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-class PropriedadeViewSet(viewsets.ModelViewSet):
+class PropriedadeViewSet(BaseCadastroViewSet):
     queryset = Propriedade.objects.all().order_by('descricao')
     serializer_class = PropriedadeSerializer
-    permission_classes = [permissions.IsAuthenticated]

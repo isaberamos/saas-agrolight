@@ -5,18 +5,20 @@ from .models import (
     Propriedade
 )
 
-class ClienteSerializer(serializers.ModelSerializer):
+class BaseCadastroSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cliente
         fields = '__all__'
+        
+class ClienteSerializer(BaseCadastroSerializer):
+    class Meta(BaseCadastroSerializer.Meta):
+        model = Cliente
         read_only_fields = ['idcliente']
 
-class FornecedorSerializer(serializers.ModelSerializer):
-    class Meta:
+class FornecedorSerializer(BaseCadastroSerializer):
+    class Meta(BaseCadastroSerializer.Meta):
         model = Fornecedor
-        fields = '__all__'
         read_only_fields = ['idfornecedor']
-
+        
 class PropriedadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propriedade

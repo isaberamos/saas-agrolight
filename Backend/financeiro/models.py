@@ -1,5 +1,4 @@
 from django.db import models
-import cadastros.models
 
 class PlanoDeContas(models.Model):
     idplanocontas   = models.AutoField(primary_key=True)

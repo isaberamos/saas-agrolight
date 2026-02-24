@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
 from financeiro.services.resumo_financeiro_service import (
     ResumoFinanceiroService
 )
+
 
 class ContasResumoMensalView(APIView):
 
@@ -15,7 +17,6 @@ class ContasResumoMensalView(APIView):
 
         except ValueError:
             return Response(
-                {"detail": "tipo inválido"},
-                status=400
+                {"detail": "Tipo inválido"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
