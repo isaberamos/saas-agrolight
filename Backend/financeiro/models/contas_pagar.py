@@ -9,8 +9,6 @@ class APagar(ContaFinanceiraBase):
         "cadastros.Fornecedor",
         on_delete=models.PROTECT,
         db_column="idfornecedor",
-        null=True,
-        blank=True,
         related_name="contas_pagar",
     )
 

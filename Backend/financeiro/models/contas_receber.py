@@ -9,8 +9,6 @@ class AReceber(ContaFinanceiraBase):
         "cadastros.Cliente",
         on_delete=models.PROTECT,
         db_column="idcliente",
-        null=True,
-        blank=True,
         related_name="contas_receber",
     )
 
