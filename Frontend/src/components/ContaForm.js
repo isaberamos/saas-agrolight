@@ -129,8 +129,8 @@ export default function ContaForm({ conta, onSave, tipoConta }) {
       dataquitacao: form.quitacao || null,
       valordesconto: parseFloat(form.desconto || 0),
       valorjuros: parseFloat(form.juros || 0),
-      idpropriedade: fkOrNull(form.propriedade),
-      idplanocontas: fkOrNull(form.planoContas),
+      propriedade: fkOrNull(form.propriedade),
+      plano_contas: fkOrNull(form.planoContas),
     };
 
     // id genérico usado pelo front para PUT
@@ -139,9 +139,9 @@ export default function ContaForm({ conta, onSave, tipoConta }) {
     }
 
     if (tipoConta === 'pagar') {
-      payload.idfornecedor = fkOrNull(form.fornecedor);
+      payload.fornecedor = fkOrNull(form.fornecedor);
     } else if (tipoConta === 'receber') {
-      payload.idcliente = fkOrNull(form.cliente);
+      payload.cliente = fkOrNull(form.cliente);
     }
 
     return payload;
@@ -255,7 +255,7 @@ export default function ContaForm({ conta, onSave, tipoConta }) {
           >
             <option value="">Selecione</option>
             {clientes.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option key={c.idcliente} value={c.idcliente}>
                 {c.nome}
               </option>
             ))}
